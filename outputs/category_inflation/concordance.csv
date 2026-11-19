@@ -1,0 +1,22 @@
+basket,category,cpi_product,shs_sources,notes
+primary,food,Food,FD001,Food expenditures.
+primary,shelter,Shelter,SH001,"Shelter total, including rented and owned accommodation and utilities."
+primary,household,"Household operations, furnishings and equipment",HO001 + HF001,Household operations plus furnishings and equipment. Child care stays inside HO001.
+primary,clothing,Clothing and footwear,CL030 (2017: CL001),Clothing and accessories. The 2017 diary names the aggregate CL001.
+primary,transportation,Transportation,TR001,Transportation.
+primary,health_personal,Health and personal care,HC001 + PC001,Out-of-pocket health care plus personal care.
+primary,recreation_education,"Recreation, education and reading",RE001 + ED002 + RO001,"Recreation, education, and reading materials."
+primary,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",TA018 (2017: TA001),"Alcohol, tobacco, and cannabis. The 2017 aggregate TA001 has no cannabis line."
+primary,residual,All-items,TC001 - mapped sum,"Priced at all-items CPI. Absorbs miscellaneous (ME001), games of chance (GC001), and any classification gap."
+shelter_split,food,Food,FD001,Same SHS weight as the primary basket. Food expenditures.
+shelter_split,household,"Household operations, furnishings and equipment",HO001 + HF001,Same SHS weight as the primary basket. Household operations plus furnishings and equipment. Child care stays inside HO001.
+shelter_split,clothing,Clothing and footwear,CL030 (2017: CL001),Same SHS weight as the primary basket. Clothing and accessories. The 2017 diary names the aggregate CL001.
+shelter_split,transportation,Transportation,TR001,Same SHS weight as the primary basket. Transportation.
+shelter_split,health_personal,Health and personal care,HC001 + PC001,Same SHS weight as the primary basket. Out-of-pocket health care plus personal care.
+shelter_split,recreation_education,"Recreation, education and reading",RE001 + ED002 + RO001,"Same SHS weight as the primary basket. Recreation, education, and reading materials."
+shelter_split,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",TA018 (2017: TA001),"Same SHS weight as the primary basket. Alcohol, tobacco, and cannabis. The 2017 aggregate TA001 has no cannabis line."
+shelter_split,residual,All-items,TC001 - mapped sum,"Same SHS weight as the primary basket. Priced at all-items CPI. Absorbs miscellaneous (ME001), games of chance (GC001), and any classification gap."
+shelter_split,rent,Rented accommodation,SH003,Replaces SH001. Rented principal residence.
+shelter_split,owned,Owned accommodation,SH010,"Replaces SH001. CPI owned accommodation is mortgage interest, replacement cost, property taxes, insurance, and maintenance. SH010 is the survey's owned-principal-residence spending, which includes mortgage payments (SH011). Mortgage principal is not priced on its own."
+shelter_split,water_fuel,"Water, fuel and electricity",SH030,"Water, fuel and electricity for the principal accommodation."
+shelter_split,other_shelter,Shelter,SH001 - SH003 - SH010 - SH030,"Remainder of shelter, priced at the shelter index."

@@ -1,0 +1,145 @@
+year,category,product,index,n_months,partial_year,yoy
+2015,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",152.01666666666668,12,False,
+2016,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",156.82500000000002,12,False,0.03163030369477027
+2017,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",161.075,12,False,0.027100271002709952
+2018,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",167.94166666666666,12,False,0.0426302447100213
+2019,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",171.07500000000002,12,False,0.01865727187019317
+2020,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",171.88333333333333,12,False,0.004725023137999829
+2021,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",174.99166666666667,12,False,0.018083971686221334
+2022,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",181.29166666666666,12,False,0.03600171436735078
+2023,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",190.45000000000002,12,False,0.05051712250057472
+2024,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",196.17499999999998,12,False,0.030060383302703997
+2025,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",199.3083333333333,12,False,0.015972133724140747
+2026,alcohol_tobacco,"Alcoholic beverages, tobacco products and recreational cannabis",203.07999999999998,10,True,0.018923778065810914
+2015,all_items,All-items,126.56666666666666,12,False,
+2016,all_items,All-items,128.375,12,False,0.01428759547010805
+2017,all_items,All-items,130.425,12,False,0.015968841285296964
+2018,all_items,All-items,133.38333333333333,12,False,0.022682256724809724
+2019,all_items,All-items,135.98333333333332,12,False,0.019492690241159627
+2020,all_items,All-items,136.95833333333334,12,False,0.007169996323078909
+2021,all_items,All-items,141.60833333333332,12,False,0.033951931852753026
+2022,all_items,All-items,151.24166666666667,12,False,0.06802801153416138
+2023,all_items,All-items,157.10833333333332,12,False,0.038790015978841685
+2024,all_items,All-items,160.85,12,False,0.02381583832811751
+2025,all_items,All-items,164.18333333333334,12,False,0.02072324111491053
+2026,all_items,All-items,168.5,10,True,0.026291747030758206
+2015,clothing,Clothing and footwear,94.56666666666666,12,False,
+2016,clothing,Clothing and footwear,94.40833333333335,12,False,-0.0016743038420865552
+2017,clothing,Clothing and footwear,93.69166666666666,12,False,-0.007591137787977931
+2018,clothing,Clothing and footwear,94.51666666666667,12,False,0.008805478964689195
+2019,clothing,Clothing and footwear,96.05,12,False,0.01622288837947461
+2020,clothing,Clothing and footwear,94.425,12,False,-0.016918271733472157
+2021,clothing,Clothing and footwear,94.05833333333334,12,False,-0.0038831524137321605
+2022,clothing,Clothing and footwear,95.39166666666667,12,False,0.01417560024807285
+2023,clothing,Clothing and footwear,96.425,12,False,0.010832532541277251
+2024,clothing,Clothing and footwear,93.3,12,False,-0.032408607726212124
+2025,clothing,Clothing and footwear,93.79166666666667,12,False,0.005269739192568901
+2026,clothing,Clothing and footwear,95.22999999999999,10,True,0.015335406486006065
+2015,food,Food,140.525,12,False,
+2016,food,Food,142.58333333333334,12,False,0.014647453003617361
+2017,food,Food,142.66666666666666,12,False,0.0005844535359438296
+2018,food,Food,145.30833333333334,12,False,0.018516355140187013
+2019,food,Food,150.21666666666667,12,False,0.03377874634398115
+2020,food,Food,153.70833333333334,12,False,0.02324420281815165
+2021,food,Food,157.54166666666666,12,False,0.02493900786120884
+2022,food,Food,171.51666666666665,12,False,0.08870669135149423
+2023,food,Food,184.33333333333334,12,False,0.07472548829073955
+2024,food,Food,189.29166666666666,12,False,0.02689873417721511
+2025,food,Food,195.33333333333334,12,False,0.03191723530706603
+2026,food,Food,201.81,10,True,0.03315699658703064
+2015,health_personal,Health and personal care,120.5,12,False,
+2016,health_personal,Health and personal care,122.20833333333333,12,False,0.014177040110650019
+2017,health_personal,Health and personal care,124.25,12,False,0.01670644391408116
+2018,health_personal,Health and personal care,125.94166666666666,12,False,0.013615023474178312
+2019,health_personal,Health and personal care,127.36666666666667,12,False,0.011314762125322675
+2020,health_personal,Health and personal care,129.20000000000002,12,False,0.014394137660298512
+2021,health_personal,Health and personal care,132.54999999999998,12,False,0.025928792569659187
+2022,health_personal,Health and personal care,138.025,12,False,0.041305167861184655
+2023,health_personal,Health and personal care,145.81666666666666,12,False,0.056451126003743246
+2024,health_personal,Health and personal care,150.41666666666666,12,False,0.03154646245285164
+2025,health_personal,Health and personal care,154.225,12,False,0.025318559556786635
+2026,health_personal,Health and personal care,157.95999999999998,10,True,0.024217863511103888
+2015,household,"Household operations, furnishings and equipment",119.72500000000001,12,False,
+2016,household,"Household operations, furnishings and equipment",121.65833333333335,12,False,0.016148117213057755
+2017,household,"Household operations, furnishings and equipment",121.93333333333334,12,False,0.002260428796492908
+2018,household,"Household operations, furnishings and equipment",123.18333333333334,12,False,0.010251503553854624
+2019,household,"Household operations, furnishings and equipment",123.59166666666665,12,False,0.003314842375862437
+2020,household,"Household operations, furnishings and equipment",123.79166666666667,12,False,0.0016182320814510653
+2021,household,"Household operations, furnishings and equipment",125.20833333333333,12,False,0.011443958263210874
+2022,household,"Household operations, furnishings and equipment",130.91666666666666,12,False,0.04559068219633944
+2023,household,"Household operations, furnishings and equipment",131.96666666666667,12,False,0.008020369191597876
+2024,household,"Household operations, furnishings and equipment",130.68333333333334,12,False,-0.009724677948977023
+2025,household,"Household operations, furnishings and equipment",132.99166666666667,12,False,0.017663563321004938
+2026,household,"Household operations, furnishings and equipment",133.57999999999998,10,True,0.004423836079954668
+2015,owned,Owned accommodation,135.23333333333332,12,False,
+2016,owned,Owned accommodation,138.06666666666666,12,False,0.02095144195218146
+2017,owned,Owned accommodation,141.55833333333334,12,False,0.02528971511347189
+2018,owned,Owned accommodation,145.32500000000002,12,False,0.026608583034084976
+2019,owned,Owned accommodation,149.025,12,False,0.02546017546877688
+2020,owned,Owned accommodation,152.275,12,False,0.0218084214058043
+2021,owned,Owned accommodation,158.58333333333334,12,False,0.041427242379467044
+2022,owned,Owned accommodation,169.13333333333333,12,False,0.06652653704676825
+2023,owned,Owned accommodation,179.51666666666665,12,False,0.061391407173827295
+2024,owned,Owned accommodation,189.9333333333333,12,False,0.0580261814130536
+2025,owned,Owned accommodation,195.20833333333334,12,False,0.027772902772903008
+2026,owned,Owned accommodation,196.01,10,True,0.004106723585912464
+2015,recreation_education,"Recreation, education and reading",109.425,12,False,
+2016,recreation_education,"Recreation, education and reading",111.34166666666665,12,False,0.017515802299900907
+2017,recreation_education,"Recreation, education and reading",114.02499999999999,12,False,0.0240999925155303
+2018,recreation_education,"Recreation, education and reading",115.31666666666666,12,False,0.011327925162610608
+2019,recreation_education,"Recreation, education and reading",116.8,12,False,0.012863130510189391
+2020,recreation_education,"Recreation, education and reading",115.66666666666667,12,False,-0.009703196347031873
+2021,recreation_education,"Recreation, education and reading",117.89999999999999,12,False,0.019308357348702954
+2022,recreation_education,"Recreation, education and reading",123.48333333333333,12,False,0.047356516822165684
+2023,recreation_education,"Recreation, education and reading",126.41666666666667,12,False,0.023754892698069963
+2024,recreation_education,"Recreation, education and reading",127.01666666666667,12,False,0.004746209624258313
+2025,recreation_education,"Recreation, education and reading",128.69166666666666,12,False,0.013187245768271794
+2026,recreation_education,"Recreation, education and reading",133.03,10,True,0.033711066502622566
+2015,rent,Rented accommodation,118.47500000000001,12,False,
+2016,rent,Rented accommodation,119.25833333333333,12,False,0.00661180277133
+2017,rent,Rented accommodation,120.01666666666667,12,False,0.006358745021312284
+2018,rent,Rented accommodation,121.38333333333333,12,False,0.011387307318427853
+2019,rent,Rented accommodation,124.7,12,False,0.02732390498421
+2020,rent,Rented accommodation,126.78333333333335,12,False,0.016706762897620964
+2021,rent,Rented accommodation,128.92499999999998,12,False,0.016892336006309794
+2022,rent,Rented accommodation,134.93333333333334,12,False,0.04660332234503284
+2023,rent,Rented accommodation,143.44166666666666,12,False,0.06305583003952564
+2024,rent,Rented accommodation,154.8,12,False,0.07918433741939235
+2025,rent,Rented accommodation,162.39166666666668,12,False,0.04904177433247203
+2026,rent,Rented accommodation,166.85999999999999,10,True,0.02751577975060271
+2015,shelter,Shelter,133.67499999999998,12,False,
+2016,shelter,Shelter,135.79166666666666,12,False,0.015834424287762605
+2017,shelter,Shelter,138.08333333333334,12,False,0.016876342436330294
+2018,shelter,Shelter,140.93333333333334,12,False,0.02063971031985501
+2019,shelter,Shelter,144.50833333333333,12,False,0.02536660359508036
+2020,shelter,Shelter,146.98333333333332,12,False,0.01712703996309317
+2021,shelter,Shelter,152.69166666666666,12,False,0.03883660278943202
+2022,shelter,Shelter,163.275,12,False,0.0693117939202097
+2023,shelter,Shelter,172.475,12,False,0.05634665441739384
+2024,shelter,Shelter,182.25833333333333,12,False,0.05672319659854086
+2025,shelter,Shelter,187.83333333333334,12,False,0.03058845045951264
+2026,shelter,Shelter,190.45,10,True,0.013930789707187197
+2015,transportation,Transportation,126.46666666666665,12,False,
+2016,transportation,Transportation,127.89999999999999,12,False,0.011333684765419072
+2017,transportation,Transportation,132.875,12,False,0.038897576231430975
+2018,transportation,Transportation,139.05833333333334,12,False,0.04653496393853884
+2019,transportation,Transportation,141.54166666666666,12,False,0.0178582129801641
+2020,transportation,Transportation,141.24166666666667,12,False,-0.002119517221077283
+2021,transportation,Transportation,151.35833333333332,12,False,0.0716266446398015
+2022,transportation,Transportation,167.51666666666668,12,False,0.10675549193415201
+2023,transportation,Transportation,169.03333333333333,12,False,0.009053825490001
+2024,transportation,Transportation,171.71666666666667,12,False,0.01587458095050298
+2025,transportation,Transportation,172.3083333333333,12,False,0.0034455983694068326
+2026,transportation,Transportation,182.19,10,True,0.057348744982347766
+2015,water_fuel,"Water, fuel and electricity",153.00833333333333,12,False,
+2016,water_fuel,"Water, fuel and electricity",154.375,12,False,0.008931975382604485
+2017,water_fuel,"Water, fuel and electricity",154.31666666666666,12,False,-0.0003778677462887847
+2018,water_fuel,"Water, fuel and electricity",155.93333333333334,12,False,0.010476293336213471
+2019,water_fuel,"Water, fuel and electricity",159.525,12,False,0.023033347584437758
+2020,water_fuel,"Water, fuel and electricity",158.9,12,False,-0.0039178812098417115
+2021,water_fuel,"Water, fuel and electricity",169.25833333333333,12,False,0.06518774910845382
+2022,water_fuel,"Water, fuel and electricity",190.51666666666665,12,False,0.12559696716065183
+2023,water_fuel,"Water, fuel and electricity",193.60833333333335,12,False,0.01622780159216175
+2024,water_fuel,"Water, fuel and electricity",194.15,12,False,0.0027977445874403095
+2025,water_fuel,"Water, fuel and electricity",194.95833333333334,12,False,0.004163447506223772
+2026,water_fuel,"Water, fuel and electricity",202.8,10,True,0.04022226971575127

@@ -1,0 +1,23 @@
+# StatCan SHS public-use microdata and household-level extracts
+RY2023/
+cache/
+*.parquet
+
+# CPI source file; the annual series is rebuilt from it
+outputs/category_inflation/raw/
+
+# Python and notebook scratch
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Local machine paths
+**/local_paths.yaml
+
+# Secrets
+.env
+.env.*
+*.pem
+credentials.json

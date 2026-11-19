@@ -1,0 +1,7 @@
+role,harmonized_column,pumf_source,years,notes
+weight,weight,WEIGHTD,"2017,2019,2023",Survey household weight; used in hexbin density (sum of weights) and wquantile
+gross_income,hhtotinc,HHTOTINC,"2017,2019,2023",Total household income before taxes
+taxes,taxes,TX010 (2019/2023); TX001/TX010 slot in 2017 loader,"2017,2019,2023",Personal taxes; subtracted from HHTOTINC
+after_tax_income,inc_net,derived: HHTOTINC - TX010 (fallback HHTOTINC if taxes missing),"2017,2019,2023",x-axis is log(inc_net); CPI-deflated to 2019 CAD before log
+consumption,consumption,TC001,"2017,2019,2023",Total consumption expenditure; y-axis is log(consumption); 2019 CAD before log
+survey_year,year,wave indicator (loader),"2017,2019,2023",Used for by-year panels; not plotted on axes

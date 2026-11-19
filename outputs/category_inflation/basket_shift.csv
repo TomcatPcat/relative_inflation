@@ -1,0 +1,241 @@
+basket,grouping,group,interval,shift_pp
+primary,all,all,2017_2019,2.3863701401046447
+primary,all,all,2019_2023,4.530116795565825
+primary,all,all,2017_2023,6.617747689737769
+primary,inc_q,Q1,2017_2019,3.421045367304077
+primary,inc_q,Q1,2019_2023,4.575419675212308
+primary,inc_q,Q1,2017_2023,4.739907410032602
+primary,inc_q,Q2,2017_2019,4.420763452754035
+primary,inc_q,Q2,2019_2023,2.8951307666152557
+primary,inc_q,Q2,2017_2023,5.679057477611936
+primary,inc_q,Q3,2017_2019,1.6035216030240138
+primary,inc_q,Q3,2019_2023,5.58860985731072
+primary,inc_q,Q3,2017_2023,6.288746195633948
+primary,inc_q,Q4,2017_2019,2.5010766481332625
+primary,inc_q,Q4,2019_2023,5.499080557707687
+primary,inc_q,Q4,2017_2023,6.7898202262551965
+primary,inc_q,Q5,2017_2019,3.948259076723792
+primary,inc_q,Q5,2019_2023,5.026048765120155
+primary,inc_q,Q5,2017_2023,8.119483126593982
+primary,cons_d,D01,2017_2019,1.8772811439437165
+primary,cons_d,D01,2019_2023,4.682541262289008
+primary,cons_d,D01,2017_2023,4.017930008447998
+primary,cons_d,D02,2017_2019,3.833708700639445
+primary,cons_d,D02,2019_2023,2.8971996286158057
+primary,cons_d,D02,2017_2023,4.158140533721366
+primary,cons_d,D03,2017_2019,2.8510246183477097
+primary,cons_d,D03,2019_2023,4.615421624472814
+primary,cons_d,D03,2017_2023,4.242398798295451
+primary,cons_d,D04,2017_2019,4.216594850913086
+primary,cons_d,D04,2019_2023,3.972460066331747
+primary,cons_d,D04,2017_2023,6.995594830105901
+primary,cons_d,D05,2017_2019,4.113613331935846
+primary,cons_d,D05,2019_2023,4.887302672759216
+primary,cons_d,D05,2017_2023,7.702610664890698
+primary,cons_d,D06,2017_2019,3.763171298773851
+primary,cons_d,D06,2019_2023,3.3987951662315856
+primary,cons_d,D06,2017_2023,5.424900284836392
+primary,cons_d,D07,2017_2019,2.8413014704832937
+primary,cons_d,D07,2019_2023,4.689299227219907
+primary,cons_d,D07,2017_2023,6.434669396410314
+primary,cons_d,D08,2017_2019,3.9675886398085938
+primary,cons_d,D08,2019_2023,2.51314355935438
+primary,cons_d,D08,2017_2023,5.253597917870755
+primary,cons_d,D09,2017_2019,2.74548783532334
+primary,cons_d,D09,2019_2023,8.043444905204558
+primary,cons_d,D09,2017_2023,9.693900827416243
+primary,cons_d,D10,2017_2019,3.242381192408808
+primary,cons_d,D10,2019_2023,7.040059680352432
+primary,cons_d,D10,2017_2023,9.091169396807112
+primary,age_band,30-39,2017_2019,3.914388291973299
+primary,age_band,30-39,2019_2023,5.720958361749108
+primary,age_band,30-39,2017_2023,9.03286881790462
+primary,age_band,40-54,2017_2019,2.5266690122590534
+primary,age_band,40-54,2019_2023,4.743913198648658
+primary,age_band,40-54,2017_2023,6.618973773536538
+primary,age_band,55-64,2017_2019,3.4075405800073932
+primary,age_band,55-64,2019_2023,4.993199960450731
+primary,age_band,55-64,2017_2023,7.624254710096232
+primary,age_band,65-74,2017_2019,3.3473288006288
+primary,age_band,65-74,2019_2023,4.2342505055389
+primary,age_band,65-74,2017_2023,6.196797835842401
+primary,age_band,75+,2017_2019,5.180349928169603
+primary,age_band,75+,2019_2023,3.4491307878694486
+primary,age_band,75+,2017_2023,5.397922675467402
+primary,age_band,<30,2017_2019,2.9785495352494826
+primary,age_band,<30,2019_2023,6.952902303177636
+primary,age_band,<30,2017_2023,8.432091743326547
+primary,tenure,owner_free_clear,2017_2019,2.9748222593502547
+primary,tenure,owner_free_clear,2019_2023,4.088964479722501
+primary,tenure,owner_free_clear,2017_2023,6.926743829294741
+primary,tenure,owner_mortgage,2017_2019,2.7189735728778555
+primary,tenure,owner_mortgage,2019_2023,5.680546028768051
+primary,tenure,owner_mortgage,2017_2023,7.120965187956658
+primary,tenure,renter,2017_2019,4.0987645297575614
+primary,tenure,renter,2019_2023,3.4192340417736404
+primary,tenure,renter,2017_2023,5.234151217210395
+primary,inc_q_x_tenure,Q1 | owner_free_clear,2017_2019,5.326301164748251
+primary,inc_q_x_tenure,Q1 | owner_free_clear,2019_2023,5.62160662419439
+primary,inc_q_x_tenure,Q1 | owner_free_clear,2017_2023,6.4178801870037265
+primary,inc_q_x_tenure,Q1 | owner_mortgage,2017_2019,10.720687391004443
+primary,inc_q_x_tenure,Q1 | owner_mortgage,2019_2023,12.717885988220306
+primary,inc_q_x_tenure,Q1 | owner_mortgage,2017_2023,4.488828319551176
+primary,inc_q_x_tenure,Q1 | renter,2017_2019,5.066299661211001
+primary,inc_q_x_tenure,Q1 | renter,2019_2023,5.627489655978272
+primary,inc_q_x_tenure,Q1 | renter,2017_2023,5.847371204975974
+primary,inc_q_x_tenure,Q2 | owner_free_clear,2017_2019,6.27666741788061
+primary,inc_q_x_tenure,Q2 | owner_free_clear,2019_2023,4.533977047438592
+primary,inc_q_x_tenure,Q2 | owner_free_clear,2017_2023,7.439239847194724
+primary,inc_q_x_tenure,Q2 | owner_mortgage,2017_2019,4.970150768077914
+primary,inc_q_x_tenure,Q2 | owner_mortgage,2019_2023,3.361758710701399
+primary,inc_q_x_tenure,Q2 | owner_mortgage,2017_2023,6.523650672840275
+primary,inc_q_x_tenure,Q2 | renter,2017_2019,5.356911782279085
+primary,inc_q_x_tenure,Q2 | renter,2019_2023,3.2508060213293217
+primary,inc_q_x_tenure,Q2 | renter,2017_2023,4.987175891819343
+primary,inc_q_x_tenure,Q3 | owner_free_clear,2017_2019,5.104376156399477
+primary,inc_q_x_tenure,Q3 | owner_free_clear,2019_2023,6.548919655985927
+primary,inc_q_x_tenure,Q3 | owner_free_clear,2017_2023,8.548304871198335
+primary,inc_q_x_tenure,Q3 | owner_mortgage,2017_2019,3.8308902411832664
+primary,inc_q_x_tenure,Q3 | owner_mortgage,2019_2023,7.538362180886896
+primary,inc_q_x_tenure,Q3 | owner_mortgage,2017_2023,5.9220022718199266
+primary,inc_q_x_tenure,Q3 | renter,2017_2019,5.717605675541672
+primary,inc_q_x_tenure,Q3 | renter,2019_2023,4.769026294084712
+primary,inc_q_x_tenure,Q3 | renter,2017_2023,6.738852496113417
+primary,inc_q_x_tenure,Q4 | owner_free_clear,2017_2019,5.51057707414315
+primary,inc_q_x_tenure,Q4 | owner_free_clear,2019_2023,4.77776097616318
+primary,inc_q_x_tenure,Q4 | owner_free_clear,2017_2023,4.276132495846886
+primary,inc_q_x_tenure,Q4 | owner_mortgage,2017_2019,3.075985236828129
+primary,inc_q_x_tenure,Q4 | owner_mortgage,2019_2023,7.316531063061124
+primary,inc_q_x_tenure,Q4 | owner_mortgage,2017_2023,7.998396676222001
+primary,inc_q_x_tenure,Q4 | renter,2017_2019,4.685591492196541
+primary,inc_q_x_tenure,Q4 | renter,2019_2023,6.903071101281407
+primary,inc_q_x_tenure,Q4 | renter,2017_2023,9.379274015284064
+primary,inc_q_x_tenure,Q5 | owner_free_clear,2017_2019,3.6844585698141294
+primary,inc_q_x_tenure,Q5 | owner_free_clear,2019_2023,6.2770695246416235
+primary,inc_q_x_tenure,Q5 | owner_free_clear,2017_2023,7.739450339127842
+primary,inc_q_x_tenure,Q5 | owner_mortgage,2017_2019,3.7948767735530144
+primary,inc_q_x_tenure,Q5 | owner_mortgage,2019_2023,4.817089224895371
+primary,inc_q_x_tenure,Q5 | owner_mortgage,2017_2023,7.960671600758878
+primary,inc_q_x_tenure,Q5 | renter,2017_2019,8.310117548665861
+primary,inc_q_x_tenure,Q5 | renter,2019_2023,8.246383633293494
+primary,inc_q_x_tenure,Q5 | renter,2017_2023,11.792307849816615
+shelter_split,all,all,2017_2019,3.0290596028332106
+shelter_split,all,all,2019_2023,4.5301167955658235
+shelter_split,all,all,2017_2023,6.745391583282165
+shelter_split,inc_q,Q1,2017_2019,3.9347660294554996
+shelter_split,inc_q,Q1,2019_2023,6.508193107122898
+shelter_split,inc_q,Q1,2017_2023,7.920457351359663
+shelter_split,inc_q,Q2,2017_2019,4.420763452754035
+shelter_split,inc_q,Q2,2019_2023,3.1279246579487636
+shelter_split,inc_q,Q2,2017_2023,6.488113878352517
+shelter_split,inc_q,Q3,2017_2019,1.8975333502104355
+shelter_split,inc_q,Q3,2019_2023,6.780277601300292
+shelter_split,inc_q,Q3,2017_2023,7.961544406042327
+shelter_split,inc_q,Q4,2017_2019,2.773566049307374
+shelter_split,inc_q,Q4,2019_2023,5.499080557707688
+shelter_split,inc_q,Q4,2017_2023,6.789820226255197
+shelter_split,inc_q,Q5,2017_2019,4.907220464877469
+shelter_split,inc_q,Q5,2019_2023,5.026048765120157
+shelter_split,inc_q,Q5,2017_2023,8.119483126593984
+shelter_split,cons_d,D01,2017_2019,4.470077619440666
+shelter_split,cons_d,D01,2019_2023,8.863399741273149
+shelter_split,cons_d,D01,2017_2023,12.14204695746326
+shelter_split,cons_d,D02,2017_2019,5.223086334546829
+shelter_split,cons_d,D02,2019_2023,3.6317867294528847
+shelter_split,cons_d,D02,2017_2023,5.207901514872206
+shelter_split,cons_d,D03,2017_2019,4.5577083062792445
+shelter_split,cons_d,D03,2019_2023,7.587034280970937
+shelter_split,cons_d,D03,2017_2023,5.778695174228507
+shelter_split,cons_d,D04,2017_2019,4.43304828482646
+shelter_split,cons_d,D04,2019_2023,4.566984444404115
+shelter_split,cons_d,D04,2017_2023,7.683943058996138
+shelter_split,cons_d,D05,2017_2019,4.1136133319358485
+shelter_split,cons_d,D05,2019_2023,7.12649799317095
+shelter_split,cons_d,D05,2017_2023,10.36482092819333
+shelter_split,cons_d,D06,2017_2019,5.255644185998763
+shelter_split,cons_d,D06,2019_2023,4.408867847135088
+shelter_split,cons_d,D06,2017_2023,6.406505016403925
+shelter_split,cons_d,D07,2017_2019,3.6942248571065934
+shelter_split,cons_d,D07,2019_2023,5.491359736785863
+shelter_split,cons_d,D07,2017_2023,6.558858618942618
+shelter_split,cons_d,D08,2017_2019,4.220714505280866
+shelter_split,cons_d,D08,2019_2023,4.644349893529256
+shelter_split,cons_d,D08,2017_2023,6.49607166670768
+shelter_split,cons_d,D09,2017_2019,3.431267902811909
+shelter_split,cons_d,D09,2019_2023,8.043444905204558
+shelter_split,cons_d,D09,2017_2023,9.693900827416241
+shelter_split,cons_d,D10,2017_2019,4.04524374552129
+shelter_split,cons_d,D10,2019_2023,7.123449571178854
+shelter_split,cons_d,D10,2017_2023,9.483252125400504
+shelter_split,age_band,30-39,2017_2019,4.104987301492126
+shelter_split,age_band,30-39,2019_2023,5.7209583617491075
+shelter_split,age_band,30-39,2017_2023,9.032868817904617
+shelter_split,age_band,40-54,2017_2019,4.363985294027646
+shelter_split,age_band,40-54,2019_2023,4.816301799376091
+shelter_split,age_band,40-54,2017_2023,8.037724383606715
+shelter_split,age_band,55-64,2017_2019,4.163091688391777
+shelter_split,age_band,55-64,2019_2023,5.654201643597691
+shelter_split,age_band,55-64,2017_2023,8.190818032521978
+shelter_split,age_band,65-74,2017_2019,4.165877180906371
+shelter_split,age_band,65-74,2019_2023,4.2948827009589925
+shelter_split,age_band,65-74,2017_2023,6.612326043161205
+shelter_split,age_band,75+,2017_2019,6.130456353836041
+shelter_split,age_band,75+,2019_2023,4.405940230312315
+shelter_split,age_band,75+,2017_2023,5.444897767716577
+shelter_split,age_band,<30,2017_2019,6.357228327700528
+shelter_split,age_band,<30,2019_2023,6.952902303177637
+shelter_split,age_band,<30,2017_2023,9.624075303300533
+shelter_split,tenure,owner_free_clear,2017_2019,3.595148578003001
+shelter_split,tenure,owner_free_clear,2019_2023,4.6725131729682685
+shelter_split,tenure,owner_free_clear,2017_2023,7.8828291836648585
+shelter_split,tenure,owner_mortgage,2017_2019,2.7189735728778532
+shelter_split,tenure,owner_mortgage,2019_2023,5.680546028768048
+shelter_split,tenure,owner_mortgage,2017_2023,7.227812262578
+shelter_split,tenure,renter,2017_2019,4.325421386436416
+shelter_split,tenure,renter,2019_2023,3.866661679078816
+shelter_split,tenure,renter,2017_2023,5.6714756215818305
+shelter_split,inc_q_x_tenure,Q1 | owner_free_clear,2017_2019,6.5328690103204
+shelter_split,inc_q_x_tenure,Q1 | owner_free_clear,2019_2023,6.183796197492754
+shelter_split,inc_q_x_tenure,Q1 | owner_free_clear,2017_2023,7.07131278186909
+shelter_split,inc_q_x_tenure,Q1 | owner_mortgage,2017_2019,10.720687391004443
+shelter_split,inc_q_x_tenure,Q1 | owner_mortgage,2019_2023,13.019943136491824
+shelter_split,inc_q_x_tenure,Q1 | owner_mortgage,2017_2023,4.622799261382184
+shelter_split,inc_q_x_tenure,Q1 | renter,2017_2019,5.4559793145278475
+shelter_split,inc_q_x_tenure,Q1 | renter,2019_2023,6.166276916106805
+shelter_split,inc_q_x_tenure,Q1 | renter,2017_2023,6.514782761060126
+shelter_split,inc_q_x_tenure,Q2 | owner_free_clear,2017_2019,6.27666741788061
+shelter_split,inc_q_x_tenure,Q2 | owner_free_clear,2019_2023,4.692614139478233
+shelter_split,inc_q_x_tenure,Q2 | owner_free_clear,2017_2023,8.083059143334685
+shelter_split,inc_q_x_tenure,Q2 | owner_mortgage,2017_2019,4.970150768077914
+shelter_split,inc_q_x_tenure,Q2 | owner_mortgage,2019_2023,3.5745299773587074
+shelter_split,inc_q_x_tenure,Q2 | owner_mortgage,2017_2023,6.629008948662299
+shelter_split,inc_q_x_tenure,Q2 | renter,2017_2019,5.779858785651159
+shelter_split,inc_q_x_tenure,Q2 | renter,2019_2023,3.7440496268181205
+shelter_split,inc_q_x_tenure,Q2 | renter,2017_2023,5.74174274224392
+shelter_split,inc_q_x_tenure,Q3 | owner_free_clear,2017_2019,5.506944509789095
+shelter_split,inc_q_x_tenure,Q3 | owner_free_clear,2019_2023,7.691950430032747
+shelter_split,inc_q_x_tenure,Q3 | owner_free_clear,2017_2023,9.329686690781616
+shelter_split,inc_q_x_tenure,Q3 | owner_mortgage,2017_2019,3.830890241183264
+shelter_split,inc_q_x_tenure,Q3 | owner_mortgage,2019_2023,7.563269976798569
+shelter_split,inc_q_x_tenure,Q3 | owner_mortgage,2017_2023,6.362126828284122
+shelter_split,inc_q_x_tenure,Q3 | renter,2017_2019,6.5541173198278875
+shelter_split,inc_q_x_tenure,Q3 | renter,2019_2023,4.912893925555273
+shelter_split,inc_q_x_tenure,Q3 | renter,2017_2023,6.936338692885837
+shelter_split,inc_q_x_tenure,Q4 | owner_free_clear,2017_2019,5.51057707414315
+shelter_split,inc_q_x_tenure,Q4 | owner_free_clear,2019_2023,5.024695742220982
+shelter_split,inc_q_x_tenure,Q4 | owner_free_clear,2017_2023,4.412904398721316
+shelter_split,inc_q_x_tenure,Q4 | owner_mortgage,2017_2019,3.4458199064190707
+shelter_split,inc_q_x_tenure,Q4 | owner_mortgage,2019_2023,7.316531063061124
+shelter_split,inc_q_x_tenure,Q4 | owner_mortgage,2017_2023,8.004559641279174
+shelter_split,inc_q_x_tenure,Q4 | renter,2017_2019,4.9516617294868635
+shelter_split,inc_q_x_tenure,Q4 | renter,2019_2023,7.451423963849305
+shelter_split,inc_q_x_tenure,Q4 | renter,2017_2023,9.640049336520072
+shelter_split,inc_q_x_tenure,Q5 | owner_free_clear,2017_2019,4.70303625644507
+shelter_split,inc_q_x_tenure,Q5 | owner_free_clear,2019_2023,6.391085052056618
+shelter_split,inc_q_x_tenure,Q5 | owner_free_clear,2017_2023,8.858479151373817
+shelter_split,inc_q_x_tenure,Q5 | owner_mortgage,2017_2019,3.837617696418554
+shelter_split,inc_q_x_tenure,Q5 | owner_mortgage,2019_2023,4.81708922489537
+shelter_split,inc_q_x_tenure,Q5 | owner_mortgage,2017_2023,7.960671600758878
+shelter_split,inc_q_x_tenure,Q5 | renter,2017_2019,9.135321608747589
+shelter_split,inc_q_x_tenure,Q5 | renter,2019_2023,10.833624176892325
+shelter_split,inc_q_x_tenure,Q5 | renter,2017_2023,14.002401259428467

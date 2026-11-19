@@ -1,0 +1,10 @@
+statistic,value
+n_households,5485.0
+ols_intercept,6.193366022234287
+ols_slope_log_income,0.4307675190397539
+ols_r_squared,0.3758052916358141
+top10_share,0.2308412352528365
+top5_share,0.13411131041179974
+top1_share,0.03500129488029033
+pareto_alpha,3.154874058200518
+lorenz_coefficient_eta,1.4640642436593605
