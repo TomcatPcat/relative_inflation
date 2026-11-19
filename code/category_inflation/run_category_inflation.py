@@ -26,8 +26,9 @@ from category_inflation.indexes import (
     decile_differentials,
     expenditure_shares,
     interpolated_shares,
+    relative_inflation_table,
 )
-from category_inflation.plots import latest_full_year, make_figures
+from category_inflation.plots import latest_full_year, make_figures, make_relative_figures
 from category_inflation.shs_extract import (
     adding_up_report,
     cc_band_check,
@@ -79,6 +80,11 @@ def main() -> dict[str, pd.DataFrame]:
     indexes.to_csv(out / "group_inflation.csv", index=False)
     deciles = decile_differentials(indexes)
     deciles.to_csv(out / "decile_differentials.csv", index=False)
+    relative = relative_inflation_table(households, prices, annual)
+    relative.to_csv(out / "relative_inflation.csv", index=False)
+    print(
+        f"Relative inflation cells: {relative.groupby(['age_group', 'mortgage_status', 'consumption_decile'], observed=True).ngroups}"
+    )
 
     bands = cc_band_check(households)
     bands.to_csv(out / "cc_income_band_check.csv", index=False)
@@ -89,6 +95,7 @@ def main() -> dict[str, pd.DataFrame]:
 
     fig_dir = out / "figures"
     make_figures(shares, indexes, fig_dir, annual)
+    make_relative_figures(relative, fig_dir)
     _print_headline(shares, indexes, deciles)
     print("Wrote", out)
     return {
@@ -102,6 +109,7 @@ def main() -> dict[str, pd.DataFrame]:
         "shares_interpolated": yearly,
         "indexes": indexes,
         "deciles": deciles,
+        "relative_inflation": relative,
         "cc_bands": bands,
         "cc_summary": cc_summary,
     }

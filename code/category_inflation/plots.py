@@ -505,6 +505,117 @@ def _basket_shift_bars(shift: pd.DataFrame, grouping: str, title: str, dest: Pat
     plt.close(fig)
 
 
+def _cell_grid(table: pd.DataFrame):
+    ages = [age for age in AGE_ORDER if age in set(table["age_group"].astype(str))]
+    tenures = [TENURE_PRETTY[code] for code in TENURE_ORDER if TENURE_PRETTY[code] in set(table["mortgage_status"].astype(str))]
+    deciles = [decile for decile in CONS_DECILE_ORDER if decile in set(table["consumption_decile"].astype(str))]
+    cmap = plt.get_cmap("viridis")
+    colors = {decile: cmap(i / max(len(deciles) - 1, 1)) for i, decile in enumerate(deciles)}
+    return ages, tenures, deciles, colors
+
+
+def _relative_line_panels(
+    table: pd.DataFrame,
+    *,
+    value: str,
+    ylabel: str,
+    title: str,
+    dest: Path,
+    from_year: int | None = None,
+    zero_line: bool = False,
+) -> None:
+    frame = table.copy()
+    frame["year"] = frame["year"].astype(int)
+    if from_year is not None:
+        frame = frame[frame["year"] >= int(from_year)]
+    ages, tenures, deciles, colors = _cell_grid(frame)
+    fig, axes = plt.subplots(len(ages), len(tenures), figsize=(12.6, 15.2), sharex=True, sharey=True)
+    partial = frame.loc[frame["partial_year"].astype(bool), "year"]
+    for i, age in enumerate(ages):
+        for j, tenure in enumerate(tenures):
+            ax = axes[i, j]
+            sub = frame[(frame["age_group"].astype(str) == age) & (frame["mortgage_status"].astype(str) == tenure)]
+            for decile in deciles:
+                g = sub[sub["consumption_decile"].astype(str) == decile].sort_values("year")
+                if g.empty:
+                    continue
+                ax.plot(g["year"], g[value] * 100.0, color=colors[decile], lw=1.4, label=decile)
+            if zero_line:
+                ax.axhline(0, color="black", lw=0.6)
+            if not partial.empty:
+                ax.axvspan(int(partial.min()) - 0.5, int(partial.max()) + 0.5, color="#dddddd", zorder=0)
+            if i == 0:
+                ax.set_title(tenure)
+            if j == 0:
+                ax.set_ylabel(age)
+    handles = [
+        plt.Line2D([0], [0], color=colors[decile], lw=1.6, label=decile) for decile in deciles
+    ]
+    xlabel = "Year (grey band is January–October)" if not partial.empty else "Year"
+    for ax in axes[-1, :]:
+        ax.set_xlabel(xlabel)
+    fig.suptitle(title)
+    fig.supylabel(ylabel)
+    fig.tight_layout(rect=(0.02, 0.04, 1, 0.97))
+    fig.legend(
+        handles=handles,
+        loc="lower center",
+        ncol=len(deciles),
+        frameon=False,
+        bbox_to_anchor=(0.5, 0.0),
+    )
+    _save_fig(fig, dest, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _relative_cum_bars(table: pd.DataFrame, dest: Path) -> None:
+    end = latest_full_year(table)
+    frame = table[table["year"].astype(int) == end].copy()
+    ages, tenures, deciles, colors = _cell_grid(frame)
+    fig, axes = plt.subplots(len(ages), len(tenures), figsize=(12.6, 15.2), sharey=True)
+    for i, age in enumerate(ages):
+        for j, tenure in enumerate(tenures):
+            ax = axes[i, j]
+            sub = frame[(frame["age_group"].astype(str) == age) & (frame["mortgage_status"].astype(str) == tenure)]
+            sub = sub.set_index(sub["consumption_decile"].astype(str))
+            xs = [k for k, decile in enumerate(deciles) if decile in sub.index]
+            heights = [float(sub.loc[decile, "cum_rel_inflation"]) * 100.0 for decile in deciles if decile in sub.index]
+            ax.bar(xs, heights, color=[colors[deciles[k]] for k in xs])
+            ax.set_xticks(list(range(len(deciles))))
+            ax.set_xticklabels(deciles, rotation=90, fontsize=7)
+            if i == 0:
+                ax.set_title(tenure)
+            if j == 0:
+                ax.set_ylabel(age)
+    fig.suptitle(f"Cumulative inflation since 2019, by {end}")
+    fig.supylabel("Cumulative inflation since 2019 (%)")
+    fig.tight_layout(rect=(0.02, 0.0, 1, 0.97))
+    _save_fig(fig, dest, bbox_inches="tight")
+    plt.close(fig)
+
+
+def make_relative_figures(table: pd.DataFrame, dest: Path) -> None:
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    _relative_line_panels(
+        table,
+        value="relative_inflation",
+        ylabel="Inflation (%)",
+        title="Inflation by age, mortgage status, and consumption decile",
+        dest=dest / "relative_inflation_panels.png",
+    )
+    _relative_line_panels(
+        table,
+        value="cum_rel_inflation",
+        ylabel="Cumulative inflation since 2019 (%)",
+        title="Cumulative inflation since 2019 by age, mortgage status, and consumption decile",
+        dest=dest / "cum_rel_inflation_panels.png",
+        from_year=2019,
+        zero_line=True,
+    )
+    _relative_cum_bars(table, dest / "cum_rel_inflation_bars.png")
+
+
 def make_figures(
     shares: pd.DataFrame,
     indexes: pd.DataFrame,

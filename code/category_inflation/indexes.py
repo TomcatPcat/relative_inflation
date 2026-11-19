@@ -6,9 +6,13 @@ import numpy as np
 import pandas as pd
 
 from .baskets import (
+    AGE_ORDER,
     BASKETS,
     CATEGORY_CPI,
+    CONS_DECILE_ORDER,
     GROUPING_ORDER,
+    TENURE_ORDER,
+    TENURE_PRETTY,
 )
 PUBLISH_FROM = 2016
 BASE_YEAR = 2019
@@ -414,6 +418,99 @@ def interpolated_shares(shares: pd.DataFrame, years: list[int]) -> pd.DataFrame:
         raise AssertionError("Interpolated yearly shares do not sum to 1")
     out["grouping"] = pd.Categorical(out["grouping"], categories=list(GROUPING_ORDER), ordered=True)
     return out.sort_values(["basket", "grouping", "group", "year", "category"]).reset_index(drop=True)
+
+
+def relative_inflation_table(
+    households: pd.DataFrame,
+    cpi: pd.DataFrame,
+    annual: pd.DataFrame,
+) -> pd.DataFrame:
+    """Updated primary-basket inflation for age, mortgage status, and consumption decile.
+
+    Deciles are the within-year ranks of all households. A cell is included when
+    it has a basket in 2017, 2019, and 2023, so the yearly series can be chained.
+    ``relative_inflation`` is that cell's inflation rate, the same object as
+    ``inflation`` on the updated path. ``cum_rel_inflation`` is the percent
+    change in that cell's price index since 2019.
+    """
+    categories = BASKETS["primary"]
+    work = households.loc[households["complete_primary"]].dropna(
+        subset=["age_band", "tenure", "cons_d"]
+    ).copy()
+    work["_w"] = work["weight"].to_numpy(dtype=float)
+    lookup: dict[tuple, pd.Series] = {}
+    grouped = work.groupby(["year", "age_band", "tenure", "cons_d"], sort=False)
+    for (year, age, tenure, decile), g in grouped:
+        weight = g["_w"].to_numpy(dtype=float)
+        total = float(np.sum(weight * g["tc001"].to_numpy(dtype=float)))
+        if total <= 0:
+            continue
+        shares = {
+            category: float(np.sum(weight * g[category].to_numpy(dtype=float)) / total)
+            for category in categories
+        }
+        series = pd.Series(shares, dtype=float)
+        if not np.isclose(float(series.sum()), 1.0, atol=1e-8):
+            raise AssertionError(
+                f"Shares for {age}, {tenure}, {decile}, {year} sum to {float(series.sum())}"
+            )
+        lookup[(str(age), str(tenure), str(decile), int(year))] = series
+
+    n_months = (
+        annual.loc[annual["category"] == "all_items", ["year", "n_months"]]
+        .drop_duplicates()
+        .set_index("year")["n_months"]
+    )
+    rows: list[pd.DataFrame] = []
+    cells = sorted({(age, tenure, decile) for age, tenure, decile, _year in lookup})
+    for age, tenure, decile in cells:
+        vintages = {}
+        complete = True
+        for year in SURVEY_YEARS:
+            key = (age, tenure, decile, year)
+            if key not in lookup:
+                complete = False
+                break
+            vintages[year] = lookup[key]
+        if not complete:
+            continue
+        chained = _chain_updated(vintages, cpi, categories)
+        chained["age_group"] = age
+        chained["mortgage_status"] = TENURE_PRETTY.get(tenure, tenure)
+        chained["consumption_decile"] = decile
+        chained["basket"] = "primary"
+        chained["path"] = "updated"
+        chained["grouping"] = "age_tenure_cons_d"
+        chained["group"] = f"{age}|{tenure}|{decile}"
+        rows.append(chained)
+    if not rows:
+        raise AssertionError("No age, tenure, and decile cell has a basket in all three survey years")
+    raw = pd.concat(rows, ignore_index=True)
+    decorated = _recompute_yoy(_decorate(raw, cpi, n_months))
+    out = decorated[decorated["year"] >= PUBLISH_FROM].copy()
+    if out["inflation"].isna().any():
+        raise AssertionError("Relative inflation is missing for a published year")
+    out["relative_inflation"] = out["inflation"]
+    out["cum_rel_inflation"] = out["cum_from_2019"]
+    out["age_group"] = pd.Categorical(out["age_group"], categories=list(AGE_ORDER), ordered=True)
+    out["mortgage_status"] = pd.Categorical(
+        out["mortgage_status"],
+        categories=[TENURE_PRETTY[code] for code in TENURE_ORDER],
+        ordered=True,
+    )
+    out["consumption_decile"] = pd.Categorical(
+        out["consumption_decile"], categories=list(CONS_DECILE_ORDER), ordered=True
+    )
+    columns = [
+        "age_group",
+        "mortgage_status",
+        "consumption_decile",
+        "year",
+        "relative_inflation",
+        "cum_rel_inflation",
+        "partial_year",
+    ]
+    return out.sort_values(columns[:4]).reset_index(drop=True)[columns]
 
 
 def decile_differentials(indexes: pd.DataFrame) -> pd.DataFrame:
