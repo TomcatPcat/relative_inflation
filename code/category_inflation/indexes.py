@@ -14,9 +14,10 @@ from .baskets import (
     TENURE_ORDER,
     TENURE_PRETTY,
 )
-PUBLISH_FROM = 2016
+PUBLISH_FROM = pd.Timestamp("2016-01-01")
 BASE_YEAR = 2019
 SURVEY_YEARS = (2017, 2019, 2023)
+YOY_MONTHS = 12
 
 
 def _complete_col(basket: str) -> str:
@@ -101,14 +102,21 @@ def _weights_lookup(shares: pd.DataFrame, basket: str) -> dict[tuple, pd.Series]
     return lookup
 
 
-def _index_from_weights(weights: pd.Series, cpi: pd.DataFrame, categories: tuple[str, ...]) -> pd.Series:
-    """Lowe index, 2019 = 100, using fixed expenditure weights."""
-    if int(BASE_YEAR) not in cpi.index:
+def _base_year_mean(cpi: pd.DataFrame) -> pd.Series:
+    """Mean of each category's monthly index in the base year."""
+    base = cpi.loc[cpi.index.year == BASE_YEAR]
+    if base.empty:
         raise KeyError(f"CPI is missing base year {BASE_YEAR}")
+    return base.mean()
+
+
+def _index_from_weights(weights: pd.Series, cpi: pd.DataFrame, categories: tuple[str, ...]) -> pd.Series:
+    """Lowe index. The 2019 average of the monthly index equals 100."""
+    base = _base_year_mean(cpi)
     rel = pd.DataFrame(index=cpi.index)
     for category in categories:
         key = CATEGORY_CPI[category]
-        rel[category] = cpi[key] / float(cpi.loc[BASE_YEAR, key])
+        rel[category] = cpi[key] / float(base[key])
     w = weights.reindex(list(categories)).astype(float)
     if w.isna().any():
         raise ValueError(f"Missing weights for {w[w.isna()].index.tolist()}")
@@ -172,67 +180,71 @@ def _chain_updated(
     cpi: pd.DataFrame,
     categories: tuple[str, ...],
 ) -> pd.DataFrame:
-    """Chain annual basket-weighted price relatives and rebase so 2019 = 100.
+    """Chain monthly basket-weighted price relatives.
 
-    The growth into calendar year t uses that year's interpolated SHS basket.
-    The year before the published window is kept as an anchor so the first
-    published year has a year-over-year rate. Callers drop that anchor.
+    The growth into month m uses the interpolated basket of that calendar year.
+    The level is rebased so the average of the 2019 monthly levels equals 100.
+    Months before the published window stay in the frame so the first
+    twelve-month rate is defined. Callers drop them after that rate is computed.
     """
-    years = sorted(int(y) for y in cpi.index if int(y) >= PUBLISH_FROM)
-    anchor = years[0] - 1
-    if anchor not in cpi.index:
-        raise KeyError(f"CPI missing lag year {anchor}")
-    levels: dict[int, float] = {anchor: 1.0}
+    months = list(pd.DatetimeIndex(cpi.index).sort_values())
+    if len(months) < YOY_MONTHS + 1:
+        raise ValueError("CPI monthly history is too short for a twelve-month rate")
+    periods = pd.DatetimeIndex(months).to_period("M")
+    if not periods.equals(pd.period_range(periods[0], periods[-1], freq="M")):
+        raise ValueError("CPI months are not consecutive")
+    level = 1.0
+    first = months[0]
     records = [
         {
-            "year": anchor,
+            "date": first,
             "share_year": 2017,
-            "weight_source": weight_source_for_year(anchor),
-            "level_raw": 1.0,
+            "weight_source": weight_source_for_year(int(first.year)),
+            "level_raw": level,
         }
     ]
-    for year in years:
-        source = weight_source_for_year(year)
-        weights = interpolate_weights(weights_by_year, year, categories)
+    for prev, month in zip(months, months[1:]):
+        source = weight_source_for_year(int(month.year))
+        weights = interpolate_weights(weights_by_year, int(month.year), categories)
         growth = 0.0
         for category in categories:
             key = CATEGORY_CPI[category]
-            growth += float(weights[category]) * float(cpi.loc[year, key] / cpi.loc[year - 1, key])
-        levels[year] = levels[year - 1] * growth
+            growth += float(weights[category]) * float(cpi.loc[month, key] / cpi.loc[prev, key])
+        level *= growth
         records.append(
             {
-                "year": year,
+                "date": month,
                 "share_year": int(source) if source.isdigit() else pd.NA,
                 "weight_source": source,
-                "level_raw": levels[year],
+                "level_raw": level,
             }
         )
     frame = pd.DataFrame(records)
-    base = float(frame.loc[frame["year"] == BASE_YEAR, "level_raw"].iloc[0])
-    frame["index"] = frame["level_raw"] / base * 100.0
+    base_rows = frame.loc[frame["date"].dt.year == BASE_YEAR, "level_raw"]
+    if base_rows.empty:
+        raise KeyError(f"Chained index is missing {BASE_YEAR}")
+    frame["index"] = frame["level_raw"] / float(base_rows.mean()) * 100.0
     return frame
 
 
-def _decorate(frame: pd.DataFrame, cpi: pd.DataFrame, n_months: pd.Series) -> pd.DataFrame:
+def _decorate(frame: pd.DataFrame, cpi: pd.DataFrame) -> pd.DataFrame:
     out = frame.copy()
-    all_items = cpi["all_items"]
-    base = float(all_items.loc[BASE_YEAR])
-    out["all_items_index"] = out["year"].map(lambda y: float(all_items.loc[int(y)] / base * 100.0))
+    out["date"] = pd.to_datetime(out["date"])
+    base = float(cpi.loc[cpi.index.year == BASE_YEAR, "all_items"].mean())
+    all_items = (cpi["all_items"] / base * 100.0).rename("all_items_index")
+    out = out.merge(all_items, left_on="date", right_index=True, how="left")
     out["cum_from_2019"] = out["index"] / 100.0 - 1.0
     out["all_items_cum_from_2019"] = out["all_items_index"] / 100.0 - 1.0
     out["cum_gap"] = out["cum_from_2019"] - out["all_items_cum_from_2019"]
-    out["n_months"] = out["year"].map(n_months)
-    out["partial_year"] = out["n_months"] < 12
     return out
 
 
-def build_indexes(shares: pd.DataFrame, cpi: pd.DataFrame, annual: pd.DataFrame) -> pd.DataFrame:
-    """Fixed-basket Lowe indexes and a chained updated-basket index, from 2016 onward."""
-    n_months = (
-        annual.loc[annual["category"] == "all_items", ["year", "n_months"]]
-        .drop_duplicates()
-        .set_index("year")["n_months"]
-    )
+def _month_label(dates: pd.Series) -> pd.Series:
+    return pd.to_datetime(dates).dt.strftime("%Y-%m")
+
+
+def build_indexes(shares: pd.DataFrame, cpi: pd.DataFrame) -> pd.DataFrame:
+    """Fixed-basket Lowe indexes and a chained updated-basket index, monthly from 2016."""
     rows: list[pd.DataFrame] = []
     for basket, categories in BASKETS.items():
         lookup = _weights_lookup(shares, basket)
@@ -247,8 +259,8 @@ def build_indexes(shares: pd.DataFrame, cpi: pd.DataFrame, annual: pd.DataFrame)
             for share_year, weights in vintages.items():
                 level = _index_from_weights(weights, cpi, categories)
                 block = level.rename("index").reset_index()
-                if "year" not in block.columns:
-                    block = block.rename(columns={block.columns[0]: "year"})
+                if "date" not in block.columns:
+                    block = block.rename(columns={block.columns[0]: "date"})
                 block["basket"] = basket
                 block["path"] = "fixed"
                 block["grouping"] = grouping
@@ -265,7 +277,7 @@ def build_indexes(shares: pd.DataFrame, cpi: pd.DataFrame, annual: pd.DataFrame)
                 rows.append(
                     chained[
                         [
-                            "year",
+                            "date",
                             "index",
                             "basket",
                             "path",
@@ -277,19 +289,18 @@ def build_indexes(shares: pd.DataFrame, cpi: pd.DataFrame, annual: pd.DataFrame)
                     ]
                 )
     raw = pd.concat(rows, ignore_index=True)
-    # Keep the lag year so the first published YoY is defined, then drop it.
-    decorated = _decorate(raw, cpi, n_months)
-    # Fixed paths: pct_change must be within share_year. Updated: within the path.
-    # _decorate used one rule. Recompute YoY separately to keep both correct.
-    decorated = _recompute_yoy(decorated)
-    out = decorated[decorated["year"] >= PUBLISH_FROM].copy()
+    raw["date"] = pd.to_datetime(raw["date"])
+    # Keep the lag months so the first twelve-month rate is defined, then drop them.
+    decorated = _recompute_yoy(_decorate(raw, cpi))
+    out = decorated[decorated["date"] >= PUBLISH_FROM].copy()
+    out["date"] = _month_label(out["date"])
     out["grouping"] = pd.Categorical(out["grouping"], categories=list(GROUPING_ORDER), ordered=True)
     # Fixed vintages stay together. The updated path is one chronological series,
-    # including years whose basket is a blend and so has no single survey year.
+    # including months whose basket is a blend and so has no single survey year.
     out["_vintage"] = out["share_year"]
     out.loc[out["path"] == "updated", "_vintage"] = 0
     out = out.sort_values(
-        ["basket", "path", "grouping", "group", "_vintage", "year"]
+        ["basket", "path", "grouping", "group", "_vintage", "date"]
     ).drop(columns="_vintage").reset_index(drop=True)
     _validate_indexes(out)
     return out
@@ -301,28 +312,31 @@ def _recompute_yoy(frame: pd.DataFrame) -> pd.DataFrame:
     for path, g in out.groupby("path", sort=False):
         if path == "fixed":
             keys = ["basket", "grouping", "group", "share_year"]
-            g = g.sort_values(keys + ["year"])
+            g = g.sort_values(keys + ["date"])
         else:
             keys = ["basket", "grouping", "group"]
-            g = g.sort_values(keys + ["year"])
+            g = g.sort_values(keys + ["date"])
         g = g.copy()
-        g["inflation"] = g.groupby(keys, sort=False)["index"].pct_change()
-        g["all_items_inflation"] = g.groupby(keys, sort=False)["all_items_index"].pct_change()
+        g["inflation"] = g.groupby(keys, sort=False)["index"].pct_change(YOY_MONTHS)
+        g["all_items_inflation"] = g.groupby(keys, sort=False)["all_items_index"].pct_change(YOY_MONTHS)
         g["inflation_gap"] = g["inflation"] - g["all_items_inflation"]
         pieces.append(g)
     return pd.concat(pieces, ignore_index=True)
 
 
 def _validate_indexes(indexes: pd.DataFrame) -> None:
-    fixed_base = indexes[(indexes["path"] == "fixed") & (indexes["year"] == BASE_YEAR)]
-    if not np.allclose(fixed_base["index"].to_numpy(dtype=float), 100.0, atol=1e-6):
-        raise AssertionError("Fixed-basket index is not 100 in 2019")
-    updated_base = indexes[(indexes["path"] == "updated") & (indexes["year"] == BASE_YEAR)]
-    if updated_base.empty or not np.allclose(updated_base["index"].to_numpy(dtype=float), 100.0, atol=1e-6):
-        raise AssertionError("Updated-basket index is not 100 in 2019")
+    dated = indexes.copy()
+    dated["_year"] = pd.to_datetime(dated["date"]).dt.year
+    base = dated[dated["_year"] == BASE_YEAR]
+    means = base.groupby(
+        ["path", "basket", "grouping", "group", "share_year"], dropna=False, observed=True
+    )["index"].mean().dropna()
+    if means.empty or not np.allclose(means.to_numpy(dtype=float), 100.0, atol=1e-6):
+        worst = (means - 100.0).abs().sort_values(ascending=False).head(5)
+        raise AssertionError(f"2019 average of a monthly index is not 100:\n{worst}")
     if indexes["inflation"].isna().any():
-        missing = indexes.loc[indexes["inflation"].isna(), ["path", "grouping", "group", "year"]].head()
-        raise AssertionError(f"Inflation rate missing for some published years:\n{missing}")
+        missing = indexes.loc[indexes["inflation"].isna(), ["path", "grouping", "group", "date"]].head()
+        raise AssertionError(f"Twelve-month rate missing for some published months:\n{missing}")
 
 
 def basket_change(shares: pd.DataFrame) -> pd.DataFrame:
@@ -423,23 +437,35 @@ def interpolated_shares(shares: pd.DataFrame, years: list[int]) -> pd.DataFrame:
 def relative_inflation_table(
     households: pd.DataFrame,
     cpi: pd.DataFrame,
-    annual: pd.DataFrame,
+    tenure_labels: dict[str, str] | None = None,
 ) -> pd.DataFrame:
     """Updated primary-basket inflation for age, mortgage status, and consumption decile.
 
     Deciles are the within-year ranks of all households. A cell is included when
     it has a basket in 2017, 2019, and 2023, so the yearly series can be chained.
-    ``relative_inflation`` is that cell's inflation rate, the same object as
-    ``inflation`` on the updated path. ``cum_rel_inflation`` is the percent
-    change in that cell's price index since 2019.
+    ``relative_inflation`` is that cell's twelve-month inflation rate.
+    ``cum_rel_inflation`` is the percent change in the monthly index from its
+    2019 average, so the 2019 monthly values average to zero.
+
+    ``tenure_labels`` maps the survey tenure code onto the mortgage-status
+    label. Labels that several tenures share are pooled before the basket is
+    calculated.
     """
     categories = BASKETS["primary"]
+    if tenure_labels is None:
+        tenure_labels = {code: TENURE_PRETTY[code] for code in TENURE_ORDER}
+        grouping_name = "age_tenure_cons_d"
+    else:
+        grouping_name = "age_mortgage_cons_d"
+    status_order = list(dict.fromkeys(tenure_labels[code] for code in TENURE_ORDER if code in tenure_labels))
     work = households.loc[households["complete_primary"]].dropna(
         subset=["age_band", "tenure", "cons_d"]
     ).copy()
+    work["mortgage_status"] = work["tenure"].map(tenure_labels)
+    work = work.dropna(subset=["mortgage_status"])
     work["_w"] = work["weight"].to_numpy(dtype=float)
     lookup: dict[tuple, pd.Series] = {}
-    grouped = work.groupby(["year", "age_band", "tenure", "cons_d"], sort=False)
+    grouped = work.groupby(["year", "age_band", "mortgage_status", "cons_d"], sort=False)
     for (year, age, tenure, decile), g in grouped:
         weight = g["_w"].to_numpy(dtype=float)
         total = float(np.sum(weight * g["tc001"].to_numpy(dtype=float)))
@@ -456,11 +482,6 @@ def relative_inflation_table(
             )
         lookup[(str(age), str(tenure), str(decile), int(year))] = series
 
-    n_months = (
-        annual.loc[annual["category"] == "all_items", ["year", "n_months"]]
-        .drop_duplicates()
-        .set_index("year")["n_months"]
-    )
     rows: list[pd.DataFrame] = []
     cells = sorted({(age, tenure, decile) for age, tenure, decile, _year in lookup})
     for age, tenure, decile in cells:
@@ -476,26 +497,28 @@ def relative_inflation_table(
             continue
         chained = _chain_updated(vintages, cpi, categories)
         chained["age_group"] = age
-        chained["mortgage_status"] = TENURE_PRETTY.get(tenure, tenure)
+        chained["mortgage_status"] = tenure
         chained["consumption_decile"] = decile
         chained["basket"] = "primary"
         chained["path"] = "updated"
-        chained["grouping"] = "age_tenure_cons_d"
+        chained["grouping"] = grouping_name
         chained["group"] = f"{age}|{tenure}|{decile}"
         rows.append(chained)
     if not rows:
         raise AssertionError("No age, tenure, and decile cell has a basket in all three survey years")
     raw = pd.concat(rows, ignore_index=True)
-    decorated = _recompute_yoy(_decorate(raw, cpi, n_months))
-    out = decorated[decorated["year"] >= PUBLISH_FROM].copy()
+    raw["date"] = pd.to_datetime(raw["date"])
+    decorated = _recompute_yoy(_decorate(raw, cpi))
+    out = decorated[decorated["date"] >= PUBLISH_FROM].copy()
     if out["inflation"].isna().any():
-        raise AssertionError("Relative inflation is missing for a published year")
+        raise AssertionError("Relative inflation is missing for a published month")
+    out["date"] = _month_label(out["date"])
     out["relative_inflation"] = out["inflation"]
     out["cum_rel_inflation"] = out["cum_from_2019"]
     out["age_group"] = pd.Categorical(out["age_group"], categories=list(AGE_ORDER), ordered=True)
     out["mortgage_status"] = pd.Categorical(
         out["mortgage_status"],
-        categories=[TENURE_PRETTY[code] for code in TENURE_ORDER],
+        categories=status_order,
         ordered=True,
     )
     out["consumption_decile"] = pd.Categorical(
@@ -505,12 +528,30 @@ def relative_inflation_table(
         "age_group",
         "mortgage_status",
         "consumption_decile",
-        "year",
+        "date",
         "relative_inflation",
         "cum_rel_inflation",
-        "partial_year",
     ]
     return out.sort_values(columns[:4]).reset_index(drop=True)[columns]
+
+
+MORTGAGE_LABELS: dict[str, str] = {
+    "owner_mortgage": "hasmortgage",
+    "owner_free_clear": "nomortgage",
+    "renter": "nomortgage",
+}
+
+
+def relative_inflation_mortgage_table(
+    households: pd.DataFrame,
+    cpi: pd.DataFrame,
+) -> pd.DataFrame:
+    """Same cell table, with owners who have a mortgage separated from everyone else.
+
+    ``nomortgage`` pools owner-free-and-clear households with renters. The basket
+    is the pooled expenditure share, not an average of the separate tenure indexes.
+    """
+    return relative_inflation_table(households, cpi, tenure_labels=MORTGAGE_LABELS)
 
 
 def decile_differentials(indexes: pd.DataFrame) -> pd.DataFrame:
@@ -526,7 +567,7 @@ def decile_differentials(indexes: pd.DataFrame) -> pd.DataFrame:
     ].copy()
     base["group"] = base["group"].astype(str)
     rows = []
-    for year, g in base.groupby("year"):
+    for date, g in base.groupby("date", sort=True):
         all_row = g[(g["grouping"] == "all") & (g["group"] == "all")]
         if all_row.empty:
             continue
@@ -536,19 +577,18 @@ def decile_differentials(indexes: pd.DataFrame) -> pd.DataFrame:
         for group, row in dec.iterrows():
             rows.append(
                 {
-                    "year": int(year),
+                    "date": str(date),
                     "group": group,
                     "inflation": float(row["inflation"]),
                     "cum_gap": float(row["cum_gap"]),
                     "inflation_vs_all_households": float(row["inflation"]) - all_inf,
                     "cum_gap_vs_all_households": float(row["cum_gap"]) - all_gap,
-                    "partial_year": bool(row["partial_year"]),
                 }
             )
         if "D10" in dec.index and "D01" in dec.index:
             rows.append(
                 {
-                    "year": int(year),
+                    "date": str(date),
                     "group": "D10-D01",
                     "inflation": float(dec.loc["D10", "inflation"] - dec.loc["D01", "inflation"]),
                     "cum_gap": float(dec.loc["D10", "cum_gap"] - dec.loc["D01", "cum_gap"]),
@@ -558,10 +598,9 @@ def decile_differentials(indexes: pd.DataFrame) -> pd.DataFrame:
                     "cum_gap_vs_all_households": float(
                         dec.loc["D10", "cum_gap"] - dec.loc["D01", "cum_gap"]
                     ),
-                    "partial_year": bool(dec.loc["D01", "partial_year"]),
                 }
             )
     out = pd.DataFrame(rows)
     order = [f"D{i:02d}" for i in range(1, 11)] + ["D10-D01"]
     out["group"] = pd.Categorical(out["group"], categories=order, ordered=True)
-    return out.sort_values(["year", "group"]).reset_index(drop=True)
+    return out.sort_values(["date", "group"]).reset_index(drop=True)

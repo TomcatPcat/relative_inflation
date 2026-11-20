@@ -18,7 +18,7 @@ if str(_CODE) not in sys.path:
     sys.path.insert(0, str(_CODE))
 
 from category_inflation.baskets import concordance_rows
-from category_inflation.cpi import build_cpi_annual, cpi_wide, output_dir
+from category_inflation.cpi import build_cpi, output_dir
 from category_inflation.indexes import (
     basket_change,
     basket_shift,
@@ -26,9 +26,10 @@ from category_inflation.indexes import (
     decile_differentials,
     expenditure_shares,
     interpolated_shares,
+    relative_inflation_mortgage_table,
     relative_inflation_table,
 )
-from category_inflation.plots import latest_full_year, make_figures, make_relative_figures
+from category_inflation.plots import latest_month, make_figures, make_relative_figures
 from category_inflation.shs_extract import (
     adding_up_report,
     cc_band_check,
@@ -40,12 +41,10 @@ from category_inflation.shs_extract import (
 
 def main() -> dict[str, pd.DataFrame]:
     out = output_dir()
-    print("Building annual category CPI...")
-    annual = build_cpi_annual()
-    prices = cpi_wide(annual)
+    print("Building monthly category CPI...")
+    prices = build_cpi()
     print(
-        f"  CPI years {int(prices.index.min())}-{int(prices.index.max())}, "
-        f"partial years: {sorted(annual.loc[annual['partial_year'], 'year'].unique().tolist())}"
+        f"  CPI months {prices.index.min():%Y-%m} to {prices.index.max():%Y-%m}"
     )
 
     print("Loading SHS 2017, 2019, 2023 (nominal dollars)...")
@@ -74,16 +73,36 @@ def main() -> dict[str, pd.DataFrame]:
     change.to_csv(out / "basket_change.csv", index=False)
     shift = basket_shift(change)
     shift.to_csv(out / "basket_shift.csv", index=False)
-    yearly = interpolated_shares(shares, [int(year) for year in prices.index if int(year) >= 2016])
+    yearly = interpolated_shares(
+        shares, sorted({int(month.year) for month in prices.index if int(month.year) >= 2016})
+    )
     yearly.to_csv(out / "shares_interpolated.csv", index=False)
-    indexes = build_indexes(shares, prices, annual)
+    indexes = build_indexes(shares, prices)
     indexes.to_csv(out / "group_inflation.csv", index=False)
     deciles = decile_differentials(indexes)
     deciles.to_csv(out / "decile_differentials.csv", index=False)
-    relative = relative_inflation_table(households, prices, annual)
+    relative = relative_inflation_table(households, prices)
     relative.to_csv(out / "relative_inflation.csv", index=False)
+    mortgage = relative_inflation_mortgage_table(households, prices)
+    mortgage.to_csv(out / "relative_inflation_mortgage.csv", index=False)
+    owners = relative[relative["mortgage_status"] == "Owner with mortgage"][
+        ["age_group", "consumption_decile", "date", "relative_inflation"]
+    ]
+    has_mortgage = mortgage[mortgage["mortgage_status"] == "hasmortgage"][
+        ["age_group", "consumption_decile", "date", "relative_inflation"]
+    ]
+    matched = owners.merge(
+        has_mortgage,
+        on=["age_group", "consumption_decile", "date"],
+        suffixes=("_tenure", "_pooled"),
+    )
+    if matched.empty or (matched["relative_inflation_tenure"] - matched["relative_inflation_pooled"]).abs().max() > 1e-8:
+        raise AssertionError("hasmortgage rates do not match owner-with-mortgage rates")
     print(
-        f"Relative inflation cells: {relative.groupby(['age_group', 'mortgage_status', 'consumption_decile'], observed=True).ngroups}"
+        "Relative inflation cells:",
+        relative.groupby(["age_group", "mortgage_status", "consumption_decile"], observed=True).ngroups,
+        "mortgage-grouped cells:",
+        mortgage.groupby(["age_group", "mortgage_status", "consumption_decile"], observed=True).ngroups,
     )
 
     bands = cc_band_check(households)
@@ -94,12 +113,12 @@ def main() -> dict[str, pd.DataFrame]:
     print(bands.to_string(index=False))
 
     fig_dir = out / "figures"
-    make_figures(shares, indexes, fig_dir, annual)
+    make_figures(shares, indexes, fig_dir, prices)
     make_relative_figures(relative, fig_dir)
     _print_headline(shares, indexes, deciles)
     print("Wrote", out)
     return {
-        "annual": annual,
+        "monthly": prices,
         "households": households,
         "adding_up": check,
         "concordance": concordance,
@@ -110,21 +129,22 @@ def main() -> dict[str, pd.DataFrame]:
         "indexes": indexes,
         "deciles": deciles,
         "relative_inflation": relative,
+        "relative_inflation_mortgage": mortgage,
         "cc_bands": bands,
         "cc_summary": cc_summary,
     }
 
 
 def _print_headline(shares: pd.DataFrame, indexes: pd.DataFrame, deciles: pd.DataFrame) -> None:
-    end = latest_full_year(indexes)
+    end = latest_month(indexes)
     focus = indexes[
         (indexes["basket"] == "primary")
         & (indexes["path"] == "updated")
-        & (indexes["year"] == end)
+        & (indexes["date"] == end)
         & (indexes["grouping"].isin(["inc_q", "cons_d", "tenure", "age_band", "all"]))
     ][["grouping", "group", "inflation", "cum_gap"]]
     focus = focus.sort_values(["grouping", "group"])
-    print(f"Updated primary basket at {end} (inflation and cumulative gap vs all-items):")
+    print(f"Updated primary basket at {end} (twelve-month inflation and cumulative gap vs all-items):")
     print(focus.to_string(index=False))
     shelter = shares[
         (shares["basket"] == "primary")
@@ -133,7 +153,7 @@ def _print_headline(shares: pd.DataFrame, indexes: pd.DataFrame, deciles: pd.Dat
     ][["category", "share"]]
     print("All-household shares, 2019:")
     print(shelter.to_string(index=False))
-    end_rows = deciles[(deciles["year"] == end) & (deciles["group"].astype(str).isin(["D01", "D10", "D10-D01"]))]
+    end_rows = deciles[(deciles["date"] == end) & (deciles["group"].astype(str).isin(["D01", "D10", "D10-D01"]))]
     print(f"Consumption-decile gaps at {end}:")
     print(end_rows.to_string(index=False))
 

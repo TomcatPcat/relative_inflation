@@ -111,9 +111,42 @@ def cpi_wide(annual: pd.DataFrame) -> pd.DataFrame:
     return wide
 
 
+def cpi_monthly_wide(monthly: pd.DataFrame, *, first_year: int = FIRST_YEAR) -> pd.DataFrame:
+    """Month x category index levels, from January of ``first_year``."""
+    frame = monthly.loc[monthly["date"].dt.year >= int(first_year)].copy()
+    wide = frame.pivot(index="date", columns="category", values="value").sort_index()
+    wide.index = pd.DatetimeIndex(wide.index).to_period("M").to_timestamp()
+    wide.index.name = "date"
+    wide.columns.name = "category"
+    missing = [c for c in CPI_PRODUCTS if c not in wide.columns]
+    if missing:
+        raise KeyError(f"Monthly CPI is missing {missing}")
+    expected = pd.period_range(wide.index.min(), wide.index.max(), freq="M").to_timestamp()
+    if not wide.index.equals(expected):
+        raise ValueError("Monthly CPI has a gap")
+    if wide.isna().any().any():
+        bad = wide.columns[wide.isna().any()].tolist()
+        raise ValueError(f"Monthly CPI has gaps in {bad}")
+    return wide
+
+
 def build_cpi_annual(path: Path | None = None) -> pd.DataFrame:
     monthly = load_cpi_monthly(path)
     annual = annualize_cpi(monthly)
     dest = output_dir() / "cpi_category_annual.csv"
     annual.to_csv(dest, index=False)
     return annual
+
+
+def build_cpi(path: Path | None = None) -> pd.DataFrame:
+    """Write the monthly category index and the annual-mean check, and return the monthly panel."""
+    monthly = load_cpi_monthly(path)
+    wide = cpi_monthly_wide(monthly)
+    long = wide.stack().rename("index").reset_index()
+    long["date"] = long["date"].dt.strftime("%Y-%m")
+    long["product"] = long["category"].map(CPI_PRODUCTS)
+    long[["date", "category", "product", "index"]].to_csv(
+        output_dir() / "cpi_category_monthly.csv", index=False
+    )
+    annualize_cpi(monthly).to_csv(output_dir() / "cpi_category_annual.csv", index=False)
+    return wide

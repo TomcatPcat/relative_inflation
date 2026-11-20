@@ -58,11 +58,15 @@ def _save_fig(fig, path: Path, **kwargs) -> None:
         raise last_error
 
 
-def latest_full_year(indexes: pd.DataFrame) -> int:
-    full = indexes.loc[~indexes["partial_year"].astype(bool), "year"]
-    if full.empty:
-        raise ValueError("No full CPI year in the index file")
-    return int(full.max())
+def latest_month(frame: pd.DataFrame) -> str:
+    """Latest YYYY-MM in a monthly index or cell table."""
+    if "date" not in frame.columns or frame.empty:
+        raise ValueError("No monthly date in the index file")
+    return str(pd.to_datetime(frame["date"]).max().strftime("%Y-%m"))
+
+
+def _as_dates(values: pd.Series) -> pd.Series:
+    return pd.to_datetime(values)
 
 
 def _ordered_groups(grouping: str, groups: list[str]) -> list[str]:
@@ -164,18 +168,18 @@ def _line_by_group(
     else:
         colors = {}
     for i, group in enumerate(groups):
-        g = sub[sub["group"] == group].sort_values("year")
+        g = sub[sub["group"] == group].sort_values("date")
         ax.plot(
-            g["year"],
+            _as_dates(g["date"]),
             g[value] * scale,
             label=_pretty(grouping, group),
             color=colors.get(group),
             lw=2,
         )
     if value == "inflation":
-        ref = sub[sub["group"] == groups[0]].sort_values("year")
+        ref = sub[sub["group"] == groups[0]].sort_values("date")
         ax.plot(
-            ref["year"],
+            _as_dates(ref["date"]),
             ref["all_items_inflation"] * scale,
             color="black",
             lw=1.6,
@@ -184,15 +188,8 @@ def _line_by_group(
         )
     if zero_line:
         ax.axhline(0, color="black", lw=0.8)
-    partial = sub.loc[sub["partial_year"].astype(bool), "year"]
-    if not partial.empty:
-        ax.axvspan(int(partial.min()) - 0.5, int(partial.max()) + 0.5, color="#dddddd", zorder=0)
     ax.set_ylabel(ylabel)
-    partial_years = sub.loc[sub["partial_year"].astype(bool), "year"]
-    xlabel = "Year"
-    if not partial_years.empty:
-        xlabel = "Year (grey band is January–October)"
-    ax.set_xlabel(xlabel)
+    ax.set_xlabel("Month")
     ax.set_title(title)
     ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5), frameon=False)
     fig.tight_layout()
@@ -200,12 +197,12 @@ def _line_by_group(
     plt.close(fig)
 
 
-def _fixed_vintage_bars(indexes: pd.DataFrame, year: int, dest: Path) -> None:
+def _fixed_vintage_bars(indexes: pd.DataFrame, month: str, dest: Path) -> None:
     sub = indexes[
         (indexes["basket"] == "primary")
         & (indexes["path"] == "fixed")
         & (indexes["grouping"] == "inc_q")
-        & (indexes["year"] == int(year))
+        & (indexes["date"] == month)
     ].copy()
     vintages = [2017, 2019, 2023]
     groups = _ordered_groups("inc_q", list(sub["group"].unique()))
@@ -224,7 +221,7 @@ def _fixed_vintage_bars(indexes: pd.DataFrame, year: int, dest: Path) -> None:
     ax.set_xticks(x)
     ax.set_xticklabels(groups)
     ax.set_ylabel("Cumulative gap vs all-items (pp)")
-    ax.set_title(f"Income-quintile gap from 2019 to {year}, three fixed baskets")
+    ax.set_title(f"Income-quintile gap from 2019 to {month}, three fixed baskets")
     ax.legend(frameon=False)
     fig.tight_layout()
     _save_fig(fig, dest)
@@ -245,20 +242,17 @@ def _tenure_shelter_compare(indexes: pd.DataFrame, dest: Path) -> None:
         ("Single shelter index", "Shelter split"),
     ):
         for group in groups:
-            g = sub[(sub["basket"] == basket) & (sub["group"] == group)].sort_values("year")
+            g = sub[(sub["basket"] == basket) & (sub["group"] == group)].sort_values("date")
             ax.plot(
-                g["year"],
+                _as_dates(g["date"]),
                 g["cum_gap"] * 100.0,
                 color=_TENURE_COLORS[group],
                 lw=2,
                 label=_pretty("tenure", group),
             )
         ax.axhline(0, color="black", lw=0.8)
-        partial = g.loc[g["partial_year"].astype(bool), "year"]
-        if not partial.empty:
-            ax.axvspan(int(partial.min()) - 0.5, int(partial.max()) + 0.5, color="#dddddd", zorder=0)
         ax.set_title(title)
-        ax.set_xlabel("Year (grey band is January–October)")
+        ax.set_xlabel("Month")
     axes[0].set_ylabel("Cumulative gap vs all-items (pp)")
     axes[1].legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
     fig.suptitle("Updated basket, by tenure", y=1.02)
@@ -300,12 +294,12 @@ def _shelter_by_income_tenure(shares: pd.DataFrame, survey_year: int, dest: Path
     plt.close(fig)
 
 
-def _decile_gap_bars(indexes: pd.DataFrame, year: int, dest: Path) -> None:
+def _decile_gap_bars(indexes: pd.DataFrame, month: str, dest: Path) -> None:
     sub = indexes[
         (indexes["basket"] == "primary")
         & (indexes["path"] == "updated")
         & (indexes["grouping"] == "cons_d")
-        & (indexes["year"] == int(year))
+        & (indexes["date"] == month)
     ].copy()
     groups = _ordered_groups("cons_d", list(sub["group"].astype(str).unique()))
     g = sub.set_index("group").reindex(groups)
@@ -314,7 +308,7 @@ def _decile_gap_bars(indexes: pd.DataFrame, year: int, dest: Path) -> None:
         & (indexes["path"] == "updated")
         & (indexes["grouping"] == "all")
         & (indexes["group"] == "all")
-        & (indexes["year"] == int(year))
+        & (indexes["date"] == month)
     ]
     fig, ax = plt.subplots(figsize=(9.5, 5.2))
     colors = [plt.get_cmap("viridis")(i / 9) for i in range(len(groups))]
@@ -330,7 +324,7 @@ def _decile_gap_bars(indexes: pd.DataFrame, year: int, dest: Path) -> None:
         ax.legend(frameon=False)
     ax.axhline(0, color="black", lw=0.8)
     ax.set_ylabel("Cumulative gap vs all-items (pp)")
-    ax.set_title(f"Consumption-decile gap from 2019 to {year}")
+    ax.set_title(f"Consumption-decile gap from 2019 to {month}")
     fig.tight_layout()
     _save_fig(fig, dest)
     plt.close(fig)
@@ -377,21 +371,19 @@ def _plot_products(
     zero_line: bool = False,
 ) -> None:
     fig, axes = plt.subplots(2, 1, figsize=(10.2, 8.4), sharex=True)
-    partial = frame.loc[frame["partial_year"].astype(bool), "year"]
-    xlabel = "Year (grey band is January–October)" if not partial.empty else "Year"
     for ax, (categories, panel_title, colors) in zip(axes, _PRODUCT_PANELS):
         for category in categories:
-            g = frame[frame["category"] == category].sort_values("year")
+            g = frame[frame["category"] == category].sort_values("date")
             ax.plot(
-                g["year"],
+                _as_dates(g["date"]),
                 g[value] * 100.0,
                 color=colors[category],
-                lw=2,
+                lw=1.4,
                 label=CATEGORY_LABELS[category],
             )
-        ref = frame[frame["category"] == "all_items"].sort_values("year")
+        ref = frame[frame["category"] == "all_items"].sort_values("date")
         ax.plot(
-            ref["year"],
+            _as_dates(ref["date"]),
             ref[value] * 100.0,
             color="black",
             lw=1.6,
@@ -400,38 +392,45 @@ def _plot_products(
         )
         if zero_line:
             ax.axhline(0, color="black", lw=0.8)
-        if not partial.empty:
-            ax.axvspan(int(partial.min()) - 0.5, int(partial.max()) + 0.5, color="#dddddd", zorder=0)
         ax.set_ylabel(ylabel)
         ax.set_title(panel_title)
         ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=3, frameon=False)
-    axes[-1].set_xlabel(xlabel)
+    axes[-1].set_xlabel("Month")
     fig.suptitle(title, y=1.01)
     fig.tight_layout()
     _save_fig(fig, dest, bbox_inches="tight")
     plt.close(fig)
 
 
-def _product_inflation(annual: pd.DataFrame, dest: Path) -> None:
-    """Annual CPI inflation for the products that price the baskets."""
-    frame = annual.dropna(subset=["yoy"]).copy()
-    frame["year"] = frame["year"].astype(int)
+def _product_month_frame(monthly: pd.DataFrame) -> pd.DataFrame:
+    """Twelve-month product inflation and the change from each product's 2019 average."""
+    long = monthly.stack().rename("index").reset_index()
+    long["date"] = pd.to_datetime(long["date"])
+    long = long.sort_values(["category", "date"])
+    long["yoy"] = long.groupby("category", sort=False)["index"].pct_change(12)
+    base = long.loc[long["date"].dt.year == 2019].groupby("category")["index"].mean()
+    long["cum"] = long["index"] / long["category"].map(base) - 1.0
+    published = long[long["date"] >= "2016-01-01"].copy()
+    published["date"] = published["date"].dt.strftime("%Y-%m")
+    return published
+
+
+def _product_inflation(monthly: pd.DataFrame, dest: Path) -> None:
+    """Twelve-month CPI inflation for the products that price the baskets."""
+    frame = _product_month_frame(monthly).dropna(subset=["yoy"])
     _plot_products(
         frame,
         value="yoy",
-        ylabel="Inflation (%)",
+        ylabel="Twelve-month inflation (%)",
         title="CPI inflation by product",
         dest=dest,
     )
 
 
-def _product_cumulative(annual: pd.DataFrame, dest: Path) -> None:
-    """Percent change in each product's annual CPI since 2019."""
-    frame = annual.copy()
-    frame["year"] = frame["year"].astype(int)
-    base = frame.loc[frame["year"] == 2019].set_index("category")["index"]
-    frame["cum"] = frame["index"] / frame["category"].map(base) - 1.0
-    frame = frame[frame["year"] >= 2019].dropna(subset=["cum"])
+def _product_cumulative(monthly: pd.DataFrame, dest: Path) -> None:
+    """Percent change in each product's monthly CPI from its 2019 average."""
+    frame = _product_month_frame(monthly)
+    frame = frame[frame["date"] >= "2019-01"].dropna(subset=["cum"])
     _plot_products(
         frame,
         value="cum",
@@ -525,25 +524,21 @@ def _relative_line_panels(
     zero_line: bool = False,
 ) -> None:
     frame = table.copy()
-    frame["year"] = frame["year"].astype(int)
     if from_year is not None:
-        frame = frame[frame["year"] >= int(from_year)]
+        frame = frame[frame["date"] >= f"{int(from_year):04d}-01"]
     ages, tenures, deciles, colors = _cell_grid(frame)
     fig, axes = plt.subplots(len(ages), len(tenures), figsize=(12.6, 15.2), sharex=True, sharey=True)
-    partial = frame.loc[frame["partial_year"].astype(bool), "year"]
     for i, age in enumerate(ages):
         for j, tenure in enumerate(tenures):
             ax = axes[i, j]
             sub = frame[(frame["age_group"].astype(str) == age) & (frame["mortgage_status"].astype(str) == tenure)]
             for decile in deciles:
-                g = sub[sub["consumption_decile"].astype(str) == decile].sort_values("year")
+                g = sub[sub["consumption_decile"].astype(str) == decile].sort_values("date")
                 if g.empty:
                     continue
-                ax.plot(g["year"], g[value] * 100.0, color=colors[decile], lw=1.4, label=decile)
+                ax.plot(_as_dates(g["date"]), g[value] * 100.0, color=colors[decile], lw=1.2, label=decile)
             if zero_line:
                 ax.axhline(0, color="black", lw=0.6)
-            if not partial.empty:
-                ax.axvspan(int(partial.min()) - 0.5, int(partial.max()) + 0.5, color="#dddddd", zorder=0)
             if i == 0:
                 ax.set_title(tenure)
             if j == 0:
@@ -551,9 +546,8 @@ def _relative_line_panels(
     handles = [
         plt.Line2D([0], [0], color=colors[decile], lw=1.6, label=decile) for decile in deciles
     ]
-    xlabel = "Year (grey band is January–October)" if not partial.empty else "Year"
     for ax in axes[-1, :]:
-        ax.set_xlabel(xlabel)
+        ax.set_xlabel("Month")
     fig.suptitle(title)
     fig.supylabel(ylabel)
     fig.tight_layout(rect=(0.02, 0.04, 1, 0.97))
@@ -569,8 +563,8 @@ def _relative_line_panels(
 
 
 def _relative_cum_bars(table: pd.DataFrame, dest: Path) -> None:
-    end = latest_full_year(table)
-    frame = table[table["year"].astype(int) == end].copy()
+    end = latest_month(table)
+    frame = table[table["date"] == end].copy()
     ages, tenures, deciles, colors = _cell_grid(frame)
     fig, axes = plt.subplots(len(ages), len(tenures), figsize=(12.6, 15.2), sharey=True)
     for i, age in enumerate(ages):
@@ -600,7 +594,7 @@ def make_relative_figures(table: pd.DataFrame, dest: Path) -> None:
     _relative_line_panels(
         table,
         value="relative_inflation",
-        ylabel="Inflation (%)",
+        ylabel="Twelve-month inflation (%)",
         title="Inflation by age, mortgage status, and consumption decile",
         dest=dest / "relative_inflation_panels.png",
     )
@@ -620,7 +614,7 @@ def make_figures(
     shares: pd.DataFrame,
     indexes: pd.DataFrame,
     dest: Path,
-    annual: pd.DataFrame,
+    monthly: pd.DataFrame,
 ) -> None:
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)
@@ -650,7 +644,7 @@ def make_figures(
             path_name="updated",
             grouping=grouping,
             value="inflation",
-            ylabel="Inflation (%)",
+            ylabel="Twelve-month inflation (%)",
             title=f"Basket inflation by {title_group}",
             dest=dest / f"inflation_{name}_updated.png",
             figsize=figsize,
@@ -667,9 +661,9 @@ def make_figures(
             zero_line=True,
             figsize=figsize,
         )
-    end = latest_full_year(indexes)
-    _product_inflation(annual, dest / "inflation_by_product.png")
-    _product_cumulative(annual, dest / "cum_inflation_by_product.png")
+    end = latest_month(indexes)
+    _product_inflation(monthly, dest / "inflation_by_product.png")
+    _product_cumulative(monthly, dest / "cum_inflation_by_product.png")
     _fixed_vintage_bars(indexes, end, dest / "cumgap_income_fixed_vintages.png")
     _tenure_shelter_compare(indexes, dest / "cumgap_tenure_shelter_split.png")
     _shelter_by_income_tenure(shares, 2019, dest / "shelter_share_income_tenure_2019.png")
