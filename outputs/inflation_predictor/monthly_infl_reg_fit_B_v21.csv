@@ -1,0 +1,2 @@
+vintage,n_obs,n_households,n_months,r_squared,adj_r_squared,se_type,aic,bic
+2021,581437,6533,89,0.7898309334765142,0.7897936959313346,"Clustered (HC1, by household)",484030.1977333212,485213.8898133014
